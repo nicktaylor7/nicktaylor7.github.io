@@ -1,0 +1,606 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Since '79</title>
+<meta name="description" content="Since '79: pull up a seat to the greatest conference in sports. Coaches, players and every final score.">
+<meta name="theme-color" content="#20386b">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@500;700;800&family=Reenie+Beanie&family=Shrikhand&family=VT323&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #e8dcc2;
+    --paper-hi: #f3ead6;
+    --ink: #1d1813;
+    --navy: #20386b;
+    --red: #cf3f2e;
+    --mustard: #e3a538;
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--paper); -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    color: var(--ink);
+    font-family: "Big Shoulders Display", "Arial Narrow", sans-serif;
+    font-weight: 500;
+    background: var(--paper);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  /* Newsprint grain over everything */
+  body::after {
+    content: "";
+    position: fixed; inset: 0;
+    pointer-events: none;
+    z-index: 50;
+    opacity: .5;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .45  0 0 0 0 .38  0 0 0 0 .28  0 0 0 .55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  }
+  a { color: inherit; }
+
+  .sheet { max-width: 1280px; margin: 0 auto; padding: 18px 20px 48px; position: relative; }
+
+  .topline {
+    display: flex; justify-content: space-between; align-items: baseline; gap: 12px;
+    border-top: 5px solid var(--ink);
+    border-bottom: 1.5px solid var(--ink);
+    padding: 6px 2px 5px;
+    font-size: 17px; font-weight: 700; letter-spacing: .04em;
+  }
+  .topline > span:first-child { text-wrap: balance; }
+  .topline .right { display: flex; align-items: baseline; gap: 18px; }
+  .topline .price {
+    font-family: "Shrikhand", Georgia, serif; font-size: 22px; color: var(--red);
+  }
+
+  .masthead { position: relative; z-index: 4; display: flex; align-items: flex-end; gap: 28px; margin: 34px 0 -30px; padding-left: 1%; }
+  .masthead h1 {
+    font-family: "Shrikhand", Georgia, serif;
+    font-weight: 400;
+    font-size: clamp(76px, 15vw, 210px);
+    line-height: .82;
+    margin: 0;
+    color: var(--red);
+    transform: rotate(-5deg);
+    transform-origin: left bottom;
+    text-shadow: 6px 5px 0 var(--navy);
+    letter-spacing: -.01em;
+    white-space: nowrap;
+  }
+  .masthead p {
+    font-family: "Reenie Beanie", "Comic Sans MS", cursive;
+    font-size: clamp(26px, 3.4vw, 42px);
+    line-height: 1;
+    color: var(--navy);
+    margin: 0 0 60px;
+    max-width: 12em;
+    text-wrap: balance;
+    transform: rotate(-2deg);
+  }
+
+  .scene {
+    position: relative;
+    z-index: 1;
+    border: 5px solid var(--ink);
+    background: var(--navy);
+    box-shadow: 10px 10px 0 var(--ink);
+  }
+  .scene svg { display: block; width: 100%; height: auto; }
+
+  .hot { cursor: pointer; outline: none; -webkit-tap-highlight-color: transparent; }
+  .scrib {
+    fill: none;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    transition: stroke-dashoffset .6s cubic-bezier(.5, 0, .3, 1);
+    pointer-events: none;
+  }
+  .scrib.on { stroke-dashoffset: 0; }
+
+  .note {
+    font-family: "Reenie Beanie", "Comic Sans MS", cursive;
+    font-size: clamp(24px, 3vw, 34px);
+    color: var(--navy);
+    margin: 26px 0 0;
+    transform: rotate(-1.5deg);
+    transform-origin: left;
+    text-wrap: balance;
+    max-width: 34em;
+  }
+
+  /* Ticket stubs */
+  .tickets {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 26px;
+    margin-top: 22px;
+  }
+  .ticket {
+    --tk: var(--navy); --tx: var(--paper-hi);
+    display: flex;
+    text-decoration: none;
+    color: var(--tx);
+    background: var(--tk);
+    min-height: 150px;
+    transition: transform .25s ease;
+    -webkit-mask: radial-gradient(circle 13px at 0 50%, #0000 98%, #000) left / 51% 100% no-repeat,
+                  radial-gradient(circle 13px at 100% 50%, #0000 98%, #000) right / 51% 100% no-repeat;
+            mask: radial-gradient(circle 13px at 0 50%, #0000 98%, #000) left / 51% 100% no-repeat,
+                  radial-gradient(circle 13px at 100% 50%, #0000 98%, #000) right / 51% 100% no-repeat;
+  }
+  .ticket:nth-child(1) { transform: rotate(-2.2deg); }
+  .ticket:nth-child(2) { --tk: var(--red); transform: rotate(1.4deg) translateY(10px); }
+  .ticket:nth-child(3) { --tk: var(--mustard); --tx: var(--ink); transform: rotate(-.8deg); }
+  .ticket:hover, .ticket:focus-visible { transform: rotate(0) translateY(-4px); outline: none; }
+  .ticket:focus-visible { box-shadow: inset 0 0 0 3px var(--tx); }
+  .ticket .main { flex: 1; padding: 16px 18px 18px 26px; }
+  .ticket .admit { font-size: 15px; font-weight: 700; letter-spacing: .06em; opacity: .85; }
+  .ticket h2 {
+    font-family: "Shrikhand", Georgia, serif; font-weight: 400;
+    font-size: clamp(30px, 3.2vw, 40px); line-height: 1; margin: 6px 0 8px;
+  }
+  .ticket .site { font-size: 22px; font-weight: 800; letter-spacing: .01em; }
+  .ticket .what { font-size: 16px; line-height: 1.3; margin-top: 4px; opacity: .9; max-width: 22em; }
+  .ticket .stub {
+    width: 62px;
+    border-left: 3px dashed currentColor;
+    display: flex; align-items: center; justify-content: center;
+    writing-mode: vertical-rl;
+    font-weight: 800; font-size: 18px; letter-spacing: .12em;
+    opacity: .9;
+  }
+
+  footer {
+    margin-top: 44px;
+    border-top: 1.5px solid var(--ink);
+    padding-top: 10px;
+    font-size: 15px;
+    line-height: 1.45;
+    max-width: 60em;
+  }
+
+  @media (max-width: 760px) {
+    .sheet { padding: 12px max(16px, env(safe-area-inset-right)) calc(40px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)); }
+    .topline { font-size: 14px; }
+    .topline .vol { display: none; }
+    .masthead { display: block; margin-bottom: 14px; }
+    .masthead p { margin: 18px 0 0 6px; max-width: none; }
+    .scene { border-width: 4px; box-shadow: 6px 6px 0 var(--ink); }
+    .tickets { grid-template-columns: 1fr; gap: 14px; }
+    .ticket { min-height: 0; }
+    .ticket .main { padding: 12px 14px 13px 24px; }
+    .ticket .admit { font-size: 13px; }
+    .ticket h2 { font-size: 30px; margin: 3px 0 4px; }
+    .ticket .site { font-size: 19px; }
+    .ticket .what { display: none; }
+    .ticket .stub { width: 46px; font-size: 15px; }
+    .ticket:nth-child(2) { transform: rotate(1deg); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .scrib, .ticket { transition: none; }
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="topline">
+    <span>The Unofficial Field Guide to Big East Basketball</span>
+    <span class="right"><span class="vol">Vol. 1, No. 1</span><span class="price">25¢</span></span>
+  </div>
+
+  <header class="masthead">
+    <h1>Since '79</h1>
+    <p>Pull up a seat to the greatest conference in sports.</p>
+  </header>
+
+  <div class="scene">
+    <svg id="court" viewBox="0 0 1600 1000" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="An illustrated 1980s college basketball game under a round, spoked arena ceiling: coaches on the sideline, a jump ball at center court and a hanging scoreboard.">
+      <defs>
+        <filter id="rough" x="-3%" y="-3%" width="106%" height="106%">
+          <feTurbulence type="fractalNoise" baseFrequency=".022" numOctaves="2" seed="7" result="n"/>
+          <feDisplacementMap in="SourceGraphic" in2="n" scale="6" xChannelSelector="R" yChannelSelector="G"/>
+        </filter>
+        <filter id="print" x="-8%" y="-8%" width="116%" height="116%">
+          <feTurbulence type="fractalNoise" baseFrequency=".03" numOctaves="2" seed="3" result="n"/>
+          <feDisplacementMap in="SourceGraphic" in2="n" scale="5" xChannelSelector="R" yChannelSelector="G" result="w"/>
+          <feOffset in="w" dx="6" dy="4" result="o"/>
+          <feColorMatrix in="o" type="matrix" values="0 0 0 0 .81  0 0 0 0 .25  0 0 0 0 .18  0 0 0 .5 0" result="ghost"/>
+          <feMerge><feMergeNode in="ghost"/><feMergeNode in="w"/></feMerge>
+        </filter>
+        <filter id="speckle" x="0" y="0" width="100%" height="100%">
+          <feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="2" seed="11"/>
+          <feColorMatrix values="0 0 0 0 .1  0 0 0 0 .08  0 0 0 0 .06  0 0 0 -1.6 1.05"/>
+        </filter>
+        <pattern id="dotInk" width="9" height="9" patternUnits="userSpaceOnUse" patternTransform="rotate(28)">
+          <circle cx="4.5" cy="4.5" r="2.6" fill="#1d1813"/>
+        </pattern>
+        <pattern id="dotPaper" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(-20)">
+          <circle cx="5" cy="5" r="2.2" fill="#f3ead6"/>
+        </pattern>
+        <pattern id="dotRed" width="11" height="11" patternUnits="userSpaceOnUse" patternTransform="rotate(15)">
+          <circle cx="5.5" cy="5.5" r="2.8" fill="#cf3f2e"/>
+        </pattern>
+        <linearGradient id="fadeDown" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#fff"/><stop offset=".55" stop-color="#fff" stop-opacity=".25"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+        </linearGradient>
+        <linearGradient id="fadeUp" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff"/>
+        </linearGradient>
+        <linearGradient id="beamFade" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#fff" stop-opacity=".9"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+        </linearGradient>
+        <mask id="mTop" maskUnits="userSpaceOnUse" x="0" y="0" width="1600" height="540"><rect width="1600" height="540" fill="url(#fadeDown)"/></mask>
+        <mask id="mFloor" maskUnits="userSpaceOnUse" x="0" y="520" width="1600" height="480"><rect y="520" width="1600" height="480" fill="url(#fadeUp)"/></mask>
+        <mask id="mBeams" maskUnits="userSpaceOnUse" x="0" y="0" width="1600" height="600">
+          <polygon points="250,0 330,0 640,580 380,580" fill="url(#beamFade)"/>
+          <polygon points="1250,0 1330,0 1220,580 960,580" fill="url(#beamFade)"/>
+        </mask>
+        <pattern id="bulbOn" width="6" height="6" patternUnits="userSpaceOnUse"><circle cx="3" cy="3" r="2.3" fill="#fff"/></pattern>
+        <pattern id="bulbOff" width="6" height="6" patternUnits="userSpaceOnUse"><circle cx="3" cy="3" r="2.1" fill="#3a2f26"/></pattern>
+        <mask id="bulbMask" maskUnits="userSpaceOnUse" x="0" y="0" width="1600" height="1000"><rect width="1600" height="1000" fill="url(#bulbOn)"/></mask>
+      </defs>
+
+      <!-- Arena, printed in navy with ink halftone -->
+      <rect width="1600" height="1000" fill="#20386b"/>
+      <g id="crowd"></g>
+      <rect width="1600" height="540" fill="url(#dotInk)" mask="url(#mTop)"/>
+      <rect width="1600" height="600" fill="url(#dotPaper)" mask="url(#mBeams)" opacity=".75"/>
+      <g id="ceiling" filter="url(#rough)"></g>
+      <g id="banners" filter="url(#rough)"></g>
+
+      <!-- Floor, mustard with red halftone -->
+      <polygon points="190,520 1410,520 1800,1000 -200,1000" fill="#e3a538"/>
+      <g id="planks"></g>
+      <rect y="520" width="1600" height="480" fill="url(#dotRed)" mask="url(#mFloor)" opacity=".55"/>
+      <g filter="url(#rough)">
+        <g fill="none" stroke="#f3ead6" stroke-width="7" stroke-linecap="round">
+          <line x1="190" y1="520" x2="1410" y2="520"/>
+          <line x1="-200" y1="930" x2="1800" y2="930"/>
+          <line x1="800" y1="520" x2="800" y2="930"/>
+          <ellipse cx="800" cy="652" rx="168" ry="44"/>
+          <path d="M190,520 L60,700 Q230,712 330,610 L360,520"/>
+          <path d="M1410,520 L1540,700 Q1370,712 1270,610 L1240,520"/>
+        </g>
+        <ellipse cx="800" cy="652" rx="66" ry="18" fill="#cf3f2e"/>
+        <!-- Scorer's table -->
+        <rect x="450" y="472" width="700" height="54" fill="#cf3f2e" stroke="#1d1813" stroke-width="4"/>
+        <text x="612" y="514" text-anchor="middle" font-family="Shrikhand, Georgia, serif" font-size="32" fill="#f3ead6">Since '79</text>
+        <text x="988" y="514" text-anchor="middle" font-family="Shrikhand, Georgia, serif" font-size="32" fill="#f3ead6">Since '79</text>
+      </g>
+
+      <g id="bench" filter="url(#print)"></g>
+
+      <!-- HOTSPOT: scoreboard → Gami -->
+      <a href="https://nicktaylor7.github.io/BigEastGami/" class="hot" data-spot="board" aria-label="The scoreboard: Big East Gami, every final scoreline">
+        <g filter="url(#print)">
+          <path d="M732,36 L650,62 M868,36 L950,62 M770,40 L700,60 M830,40 L900,60" stroke="#1d1813" stroke-width="4"/>
+          <rect x="596" y="58" width="408" height="198" fill="#1d1813" stroke="#1d1813" stroke-width="4"/>
+          <rect x="610" y="72" width="380" height="170" fill="url(#bulbOff)"/>
+          <g font-family="'Big Shoulders Display', 'Arial Narrow', sans-serif" font-size="22" font-weight="800" fill="#f3ead6" letter-spacing="3" text-anchor="middle">
+            <text x="678" y="100">HOME</text>
+            <text x="922" y="100">GUEST</text>
+            <text x="800" y="100" font-size="16">PERIOD</text>
+          </g>
+          <g mask="url(#bulbMask)" font-family="VT323, monospace" text-anchor="middle">
+            <text x="678" y="202" font-size="96" fill="#e3a538">66</text>
+            <text x="922" y="202" font-size="96" fill="#e3a538">64</text>
+            <text x="800" y="150" font-size="40" fill="#cf3f2e">0:00</text>
+            <text x="800" y="206" font-size="46" fill="#e3a538">2</text>
+          </g>
+          <text x="800" y="234" text-anchor="middle" font-family="'Big Shoulders Display', sans-serif" font-weight="800" font-size="16" letter-spacing="5" fill="#f3ead6">FINAL</text>
+        </g>
+        <rect x="590" y="0" width="420" height="270" fill="transparent"/>
+      </a>
+
+      <!-- HOTSPOT: players → Big Data -->
+      <a href="https://nicktaylor7.github.io/BigEastBigData/" class="hot" data-spot="floor" aria-label="The players: Big East Big Data, stats and leaderboards">
+        <rect x="500" y="270" width="660" height="500" fill="transparent"/>
+        <g id="players" filter="url(#print)"></g>
+      </a>
+
+      <!-- HOTSPOT: coaches → Coaching Tree -->
+      <a href="https://nicktaylor7.github.io/BigEastCoachingTree/" class="hot" data-spot="bench" aria-label="The coaches: Big East Coaching Tree">
+        <rect x="150" y="540" width="350" height="460" fill="transparent"/>
+        <g id="coaches" filter="url(#print)"></g>
+      </a>
+
+      <!-- Chalk circles, drawn on hover or tap -->
+      <g id="scribbles" stroke-linecap="round" stroke-linejoin="round"></g>
+
+      <!-- Hand-written play notes -->
+      <g id="notes" font-family="'Reenie Beanie', 'Comic Sans MS', cursive" font-size="58" pointer-events="none">
+        <g fill="#f3ead6" stroke="#16284d" stroke-width="7" stroke-linejoin="round" paint-order="stroke">
+          <text x="1046" y="104" transform="rotate(-4 1046 104)">the scoreboard</text>
+          <text x="1070" y="152" transform="rotate(-4 1070 152)">gets you Gami</text>
+          <text x="1140" y="358" transform="rotate(3 1140 358)">the floor</text>
+          <text x="1150" y="406" transform="rotate(3 1150 406)">gets you Big Data</text>
+        </g>
+        <g fill="#1d1813">
+          <text x="436" y="872" transform="rotate(-3 436 872)">the bench</text>
+          <text x="452" y="918" transform="rotate(-3 452 918)">gets you the Coaching Tree</text>
+        </g>
+        <g fill="none" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+          <path stroke="#f3ead6" d="M1040,78 C1024,64 1012,70 1012,92 M1003,80 L1012,94 L1022,82"/>
+          <path stroke="#f3ead6" d="M1132,334 C1060,262 958,256 884,296 M896,282 L882,298 L902,304"/>
+          <path stroke="#1d1813" d="M428,852 C402,840 394,816 404,788 M394,800 L404,786 L414,800"/>
+        </g>
+      </g>
+
+      <!-- Paper speckle over the print -->
+      <rect width="1600" height="1000" filter="url(#speckle)" opacity=".35" pointer-events="none"/>
+    </svg>
+  </div>
+
+  <p class="note" id="hint">Circle one: the bench, the floor or the scoreboard.</p>
+
+  <nav class="tickets" aria-label="The sites">
+    <a class="ticket" href="https://nicktaylor7.github.io/BigEastCoachingTree/">
+      <div class="main">
+        <div class="admit">Admit one</div>
+        <h2>The Bench</h2>
+        <div class="site">Big East Coaching Tree</div>
+        <div class="what">Who learned under whom, from the founding coaches to today's sidelines.</div>
+      </div>
+      <div class="stub">SEC 79</div>
+    </a>
+    <a class="ticket" href="https://nicktaylor7.github.io/BigEastBigData/">
+      <div class="main">
+        <div class="admit">Admit one</div>
+        <h2>The Floor</h2>
+        <div class="site">Big East Big Data</div>
+        <div class="what">Team and player stats, leaderboards and head-to-head comparisons.</div>
+      </div>
+      <div class="stub">ROW 1</div>
+    </a>
+    <a class="ticket" href="https://nicktaylor7.github.io/BigEastGami/">
+      <div class="main">
+        <div class="admit">Admit one</div>
+        <h2>The Scoreboard</h2>
+        <div class="site">Big East Gami</div>
+        <div class="what">Every final scoreline in conference history, and the ones that never happened before.</div>
+      </div>
+      <div class="stub">SEAT 1</div>
+    </a>
+  </nav>
+
+  <footer>
+    Since '79 is an independent fan project by Nicholas Taylor. Not affiliated with, endorsed by or sponsored by any conference, school or the NCAA. Illustration is original and depicts no real game or person.
+  </footer>
+</div>
+
+<script>
+(function () {
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const touch = window.matchMedia('(hover: none)').matches;
+  const $ = (s) => document.querySelector(s);
+  const INK = '#1d1813', PAPER = '#f3ead6', NAVY = '#20386b', RED = '#cf3f2e', MUSTARD = '#e3a538';
+
+  const lerp = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
+  const P = (p) => `${p[0].toFixed(1)},${p[1].toFixed(1)}`;
+
+  let seed = 1979;
+  const rnd = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+  const pick = (a) => a[Math.floor(rnd() * a.length)];
+
+  // Banners, left rafters only
+  let ban = '';
+  [[200, RED, PAPER], [312, PAPER, NAVY], [424, MUSTARD, INK]].forEach(([x, c, k], i) => {
+    ban += `<g transform="rotate(${[-2, 1.5, -1][i]} ${x} 14)"><path d="M${x - 40},10 h80 v106 l-40,20 l-40,-20 z" fill="${c}" stroke="${INK}" stroke-width="4"/>
+      <path d="M${x - 28},30 h56 M${x - 28},98 h56" stroke="${k}" stroke-width="4"/>
+      <path d="M${x},48 l7,14 l15,2 l-11,10 l3,15 l-14,-7 l-14,7 l3,-15 l-11,-10 l15,-2 z" fill="${k}"/></g>`;
+  });
+  $('#banners').innerHTML = ban;
+
+  // The Garden's round cable roof: a spoked wheel overhead
+  (function () {
+    const O = { cx: 800, cy: -110, rx: 1060, ry: 318 }, I = { cx: 800, cy: -70, rx: 460, ry: 150 }, H = { cx: 800, cy: 14, rx: 92, ry: 28 };
+    const pt = (e, t) => [e.cx + e.rx * Math.cos(t), e.cy + e.ry * Math.sin(t)];
+    let c = `<ellipse cx="${O.cx}" cy="${O.cy}" rx="${O.rx}" ry="${O.ry}" fill="#16294f"/>`;
+    for (let i = 0; i < 36; i++) {
+      const t = i / 36 * Math.PI * 2;
+      if (Math.sin(t) < -0.05) continue;
+      c += `<path d="M${P(pt(H, t))} L${P(pt(O, t))}" stroke="${PAPER}" stroke-opacity="${i % 2 ? .38 : .62}" stroke-width="${i % 2 ? 2.5 : 3.5}"/>`;
+    }
+    c += `<ellipse cx="${I.cx}" cy="${I.cy}" rx="${I.rx}" ry="${I.ry}" fill="none" stroke="${PAPER}" stroke-opacity=".7" stroke-width="6"/>`;
+    c += `<ellipse cx="${O.cx}" cy="${O.cy}" rx="${O.rx}" ry="${O.ry}" fill="none" stroke="${INK}" stroke-width="9"/>`;
+    c += `<ellipse cx="${O.cx}" cy="${O.cy}" rx="${O.rx - 6}" ry="${O.ry - 4}" fill="none" stroke="${PAPER}" stroke-opacity=".55" stroke-width="3"/>`;
+    for (let i = 0; i <= 40; i++) {
+      const t = 0.12 + i / 40 * (Math.PI - 0.24);
+      const [x, y] = pt({ ...O, rx: O.rx - 16, ry: O.ry - 12 }, t);
+      if (x > -10 && x < 1610) c += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4" fill="${MUSTARD}"/>`;
+    }
+    c += `<ellipse cx="${H.cx}" cy="${H.cy}" rx="${H.rx}" ry="${H.ry}" fill="${INK}" stroke="${PAPER}" stroke-opacity=".5" stroke-width="3"/>`;
+    $('#ceiling').innerHTML = c;
+  })();
+
+  // Crowd: loose blobs in the four inks
+  const shirts = [RED, MUSTARD, PAPER, '#3f5c99', '#8f2e22', '#b07d2b', '#16284d'];
+  const skins = ['#d9a77c', '#a8714a', '#7a4a2e', '#e6bf98', '#5a3520'];
+  const crowd = [];
+  let y = 214;
+  for (let r = 0; r < 15; r++) {
+    const h = 3.8 + r * .5, step = h * 2.7;
+    for (let x = -10 + rnd() * step; x < 1615; x += step * (.8 + rnd() * .45)) {
+      const yy = y + (rnd() - .5) * 4;
+      crowd.push(`<ellipse cx="${x.toFixed(1)}" cy="${(yy + h * 1.9).toFixed(1)}" rx="${(h * 1.15).toFixed(1)}" ry="${(h * 1.25).toFixed(1)}" fill="${pick(shirts)}" opacity=".8"/>`);
+      crowd.push(`<circle cx="${x.toFixed(1)}" cy="${yy.toFixed(1)}" r="${h.toFixed(1)}" fill="${pick(skins)}" opacity=".9"/>`);
+    }
+    y += h * 2.2 + 3;
+  }
+  $('#crowd').innerHTML = crowd.join('');
+
+  // Planks
+  let pk = '';
+  for (let i = 1; i < 52; i++) {
+    const xf = 190 + i * (1220 / 52), xn = -200 + i * (2000 / 52);
+    pk += `<line x1="${xf.toFixed(1)}" y1="520" x2="${xn.toFixed(1)}" y2="1000" stroke="#a6501e" stroke-opacity="${i % 3 ? .25 : .45}" stroke-width="${i % 3 ? 1.2 : 2}"/>`;
+  }
+  $('#planks').innerHTML = pk;
+
+  // Drawing helpers: every shape gets an ink outline, like a hand-cut screen
+  const limb = (d, color, w) =>
+    `<path d="${d}" fill="none" stroke="${INK}" stroke-width="${w + 7}" stroke-linecap="round" stroke-linejoin="round"/>` +
+    `<path d="${d}" fill="none" stroke="${color}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;
+  const shape = (d, color) => `<path d="${d}" fill="${color}" stroke="${INK}" stroke-width="4" stroke-linejoin="round"/>`;
+
+  function player(o) {
+    const s = o.s, sx = o.flip ? -s : s, lift = o.lift || 0, jump = o.pose === 'jump';
+    const legs = jump
+      ? [[[-10, -120], [-26, -80], [-12, -34]], [[10, -120], [24, -74], [8, -30]]]
+      : [[[-10, -120], [-13, -62], [-14, -8]], [[10, -120], [13, -62], [14, -8]]];
+    const arms = jump
+      ? ['M-24,-236 L-40,-206 L-46,-172', 'M24,-236 L40,-284 L50,-328']
+      : (o.pose === 'hands' ? ['M-24,-236 L-36,-196 L-20,-166', 'M24,-236 L36,-196 L20,-166'] : ['M-24,-236 L-33,-196 L-31,-158', 'M24,-236 L33,-196 L31,-158']);
+    let g = '';
+    legs.forEach(([hip, knee, foot]) => {
+      g += limb(`M${P(hip)} L${P(knee)} L${P(foot)}`, o.skin, 14);
+      const a = lerp(knee, foot, .45);
+      g += `<path d="M${P(a)} L${P(foot)}" stroke="${PAPER}" stroke-width="15" stroke-linecap="round"/>`;
+      g += `<path d="M${P(lerp(knee, foot, .52))} L${P(lerp(knee, foot, .6))} M${P(lerp(knee, foot, .68))} L${P(lerp(knee, foot, .75))}" stroke="${o.trim}" stroke-width="15.5"/>`;
+      g += `<ellipse cx="${foot[0] + 5}" cy="${foot[1] + 3}" rx="15" ry="8" fill="${PAPER}" stroke="${INK}" stroke-width="3.5"/>`;
+    });
+    g += shape('M-27,-170 L27,-170 L31,-116 L5,-116 L0,-128 L-5,-116 L-31,-116 Z', o.jersey);
+    g += shape('M-25,-240 L-13,-250 Q0,-236 13,-250 L25,-240 L27,-166 L-27,-166 Z', o.jersey);
+    g += `<path d="M-13,-250 Q0,-236 13,-250" fill="none" stroke="${o.trim}" stroke-width="4"/>`;
+    g += `<text x="0" y="-188" text-anchor="middle" font-family="'Big Shoulders Display', sans-serif" font-weight="800" font-size="38" fill="${o.trim}" stroke="${INK}" stroke-width="1.2" ${o.flip ? 'transform="scale(-1,1)"' : ''}>${o.num}</text>`;
+    arms.forEach(d => { g += limb(d, o.skin, 12); });
+    g += `<rect x="-6" y="-262" width="12" height="18" fill="${o.skin}" stroke="${INK}" stroke-width="3"/>`;
+    g += o.afro ? `<circle cx="0" cy="-283" r="24" fill="${o.hair}" stroke="${INK}" stroke-width="4"/>` : `<circle cx="0" cy="-280" r="19" fill="${o.hair}" stroke="${INK}" stroke-width="4"/>`;
+    g += `<circle cx="0" cy="-275" r="17" fill="${o.skin}" stroke="${INK}" stroke-width="3.5"/>`;
+    g += `<rect x="-18" y="${o.afro ? -288 : -286}" width="36" height="${o.afro ? 8 : 6}" fill="${o.band}" stroke="${INK}" stroke-width="2.5"/>`;
+    return `<ellipse cx="${o.x}" cy="${o.ground}" rx="${36 * s}" ry="${9 * s}" fill="${INK}" fill-opacity="${lift ? .25 : .4}"/>
+      <g transform="translate(${o.x},${o.ground - lift}) scale(${sx},${s})">${g}</g>`;
+  }
+
+  function coach(o) {
+    let g = '';
+    g += limb('M-11,-132 L-12,-8', o.slacks, 18) + limb('M11,-132 L12,-8', o.slacks, 18);
+    g += `<ellipse cx="-15" cy="-2" rx="16" ry="7" fill="${INK}"/><ellipse cx="15" cy="-2" rx="16" ry="7" fill="${INK}"/>`;
+    g += shape('M-31,-246 L31,-246 L35,-122 L-35,-122 Z', o.suit);
+    g += `<path d="M-11,-246 L11,-246 L0,-196 Z" fill="${PAPER}" stroke="${INK}" stroke-width="3"/>`;
+    g += `<path d="M-3.5,-242 L3.5,-242 L5.5,-200 L0,-191 L-5.5,-200 Z" fill="${o.tie}" stroke="${INK}" stroke-width="2"/>`;
+    g += `<path d="M-12,-246 L-1,-188 M12,-246 L1,-188" stroke="${INK}" stroke-width="3"/>`;
+    if (o.pose === 'point') {
+      g += limb('M-31,-240 L-42,-196 L-24,-166', o.suit, 15);
+      g += limb('M31,-240 L72,-240 L112,-260', o.suit, 15);
+      g += `<circle cx="-24" cy="-166" r="8" fill="${o.skin}" stroke="${INK}" stroke-width="3"/><circle cx="117" cy="-262" r="8" fill="${o.skin}" stroke="${INK}" stroke-width="3"/>`;
+      g += limb('M123,-265 L134,-269', o.skin, 4);
+    } else {
+      g += limb('M-31,-240 L-38,-196 L-10,-182', o.suit, 15);
+      g += limb('M31,-240 L38,-196 L10,-180', o.suit, 15);
+      g += `<rect x="-30" y="-190" width="60" height="14" rx="7" fill="${PAPER}" stroke="${INK}" stroke-width="3"/>`;
+      g += `<circle cx="-10" cy="-182" r="8" fill="${o.skin}" stroke="${INK}" stroke-width="3"/><circle cx="10" cy="-180" r="8" fill="${o.skin}" stroke="${INK}" stroke-width="3"/>`;
+    }
+    g += `<rect x="-7" y="-262" width="14" height="18" fill="${o.skin}" stroke="${INK}" stroke-width="3"/>`;
+    g += `<circle cx="0" cy="-279" r="19" fill="${o.skin}" stroke="${INK}" stroke-width="3.5"/>`;
+    g += o.bald
+      ? `<path d="M-18,-272 Q-21,-292 -9,-296 M18,-272 Q21,-292 9,-296" fill="none" stroke="${o.hair}" stroke-width="8" stroke-linecap="round"/>`
+      : `<path d="M-20,-278 Q-21,-303 0,-302 Q21,-303 20,-278 Q8,-293 -20,-282 Z" fill="${o.hair}" stroke="${INK}" stroke-width="3"/>`;
+    if (o.glasses) g += `<circle cx="-7.5" cy="-279" r="6.5" fill="none" stroke="${INK}" stroke-width="2.6"/><circle cx="7.5" cy="-279" r="6.5" fill="none" stroke="${INK}" stroke-width="2.6"/>`;
+    if (o.mustache) g += `<path d="M-9,-268 Q0,-275 9,-268 Q0,-263 -9,-268 Z" fill="${o.hair}"/>`;
+    return `<ellipse cx="${o.x}" cy="${o.ground}" rx="${40 * o.s}" ry="${9 * o.s}" fill="${INK}" fill-opacity=".4"/>
+      <g transform="translate(${o.x},${o.ground}) scale(${o.s})">${g}</g>`;
+  }
+
+  // Bench props
+  let bench = '';
+  [22, 78].forEach(x => {
+    bench += `<g transform="translate(${x},860)">${shape('M0,0 h44 v58 h-44 z', '#6b5f55')}${shape('M-3,56 h50 v10 h-50 z', '#857868')}
+      <path d="M4,66 L0,118 M40,66 L44,118" stroke="${INK}" stroke-width="5"/></g>`;
+  });
+  bench += `<g transform="translate(132,882)">${shape('M0,0 h44 v58 h-44 z', RED)}${shape('M-3,-9 h50 v12 h-50 z', PAPER)}
+    ${shape('M-6,58 h56 v46 h-56 z', '#4a3f37')}</g>`;
+  $('#bench').innerHTML = bench;
+
+  // Players
+  const home = { jersey: PAPER, trim: NAVY }, away = { jersey: RED, trim: PAPER };
+  let pl = '';
+  pl += player({ ...away, x: 1092, ground: 742, s: 1.04, flip: true, pose: 'hands', num: 12, skin: '#7a4a2e', hair: INK, afro: true, band: PAPER });
+  pl += player({ ...home, x: 556, ground: 760, s: 1.06, pose: 'hands', num: 30, skin: '#e2b48c', hair: '#6a4320', band: NAVY });
+  pl += player({ ...home, x: 754, ground: 652, s: .86, lift: 46, pose: 'jump', num: 44, skin: '#a8714a', hair: INK, afro: true, band: MUSTARD });
+  pl += player({ ...away, x: 846, ground: 652, s: .86, lift: 46, pose: 'jump', flip: true, num: 21, skin: '#e6bf98', hair: MUSTARD, band: NAVY });
+  pl += `<g transform="translate(800,316)"><circle r="15" fill="#d9692a" stroke="${INK}" stroke-width="3.5"/>
+    <path d="M-15,0 H15 M0,-15 V15 M-10,-11 Q-1,0 -10,11 M10,-11 Q1,0 10,11" fill="none" stroke="${INK}" stroke-width="2"/></g>`;
+  $('#players').innerHTML = pl;
+
+  // Coaches
+  let co = '';
+  co += coach({ x: 225, ground: 978, s: 1.32, pose: 'program', suit: '#7a4e2c', slacks: '#4a3424', tie: NAVY, skin: '#e2b48c', hair: '#9a948c', bald: true, glasses: true });
+  co += coach({ x: 362, ground: 972, s: 1.32, pose: 'point', suit: NAVY, slacks: '#2d2b30', tie: RED, skin: '#a8714a', hair: INK, mustache: true });
+  $('#coaches').innerHTML = co;
+
+  // Chalk circles, wobbly and overshooting like a coach's marker
+  function scribble(cx, cy, rx, ry, tilt) {
+    const pts = [];
+    const start = -0.4, end = Math.PI * 2 + 0.55, n = 70;
+    for (let i = 0; i <= n; i++) {
+      const t = start + (end - start) * i / n;
+      const wob = 1 + Math.sin(t * 3 + 1.3) * .035 + (i / n) * .07;
+      let x = Math.cos(t) * rx * wob, y = Math.sin(t) * ry * wob;
+      const c = Math.cos(tilt), s = Math.sin(tilt);
+      pts.push([cx + x * c - y * s, cy + x * s + y * c]);
+    }
+    return 'M' + pts.map(P).join(' L');
+  }
+  const circles = {
+    board: [scribble(800, 150, 250, 130, -.06), PAPER],
+    floor: [scribble(824, 520, 340, 262, .05), PAPER],
+    bench: [scribble(296, 780, 180, 236, -.08), INK],
+  };
+  $('#scribbles').innerHTML = Object.entries(circles).map(([k, [d, c]]) =>
+    `<path class="scrib" data-spot="${k}" d="${d}" pathLength="1" stroke="${c}" stroke-width="9"/>`).join('');
+
+  // Crop closer on phones
+  const svg = $('#court');
+  const narrow = window.matchMedia('(max-width: 760px)');
+  const layout = () => svg.setAttribute('viewBox', narrow.matches ? '90 0 1420 1000' : '0 0 1600 1000');
+  layout();
+  narrow.addEventListener('change', layout);
+
+  // Hotspots
+  const spots = ['bench', 'floor', 'board'];
+  const hot = {}, scrib = {};
+  spots.forEach(k => {
+    hot[k] = document.querySelector(`.hot[data-spot="${k}"]`);
+    scrib[k] = document.querySelector(`.scrib[data-spot="${k}"]`);
+  });
+  let active = null;
+  const show = k => scrib[k].classList.add('on');
+  const hide = k => { if (active !== k) scrib[k].classList.remove('on'); };
+
+  spots.forEach(k => {
+    const h = hot[k];
+    h.addEventListener('mouseenter', () => { if (!touch) show(k); });
+    h.addEventListener('mouseleave', () => { if (!touch) hide(k); });
+    h.addEventListener('focus', () => show(k));
+    h.addEventListener('blur', () => hide(k));
+    h.addEventListener('click', e => {
+      if (touch && active !== k) {
+        e.preventDefault();
+        const prev = active; active = k;
+        if (prev) hide(prev);
+        show(k);
+      }
+    });
+  });
+  document.addEventListener('click', e => {
+    if (touch && active && !e.target.closest('.hot')) { const k = active; active = null; hide(k); }
+  });
+
+  if (touch) $('#hint').textContent = 'Tap one to circle it, tap again to go in.';
+
+  // One opening play: circle each spot in turn so people know they're live
+  if (!reduce) {
+    spots.forEach((k, i) => {
+      setTimeout(() => show(k), 700 + i * 650);
+      setTimeout(() => hide(k), 700 + i * 650 + 1400);
+    });
+  }
+})();
+</script>
+</body>
+</html>
